@@ -2,317 +2,330 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <title>НМТ 2026: Комплексний тренажер</title>
+    <title>НМТ 2026: Професійний тренажер</title>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
-        :root { --red: #c61d47; --bg: #f0f2f5; --blue: #007bff; --border: #dee2e6; }
-        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background: var(--bg); color: #333; }
-        header { background: white; padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--red); position: sticky; top: 0; z-index: 100; }
-        .timer { background: #333; color: #fff; padding: 10px 25px; font-size: 22px; font-weight: bold; border-radius: 5px; }
-        .tabs { background: #fff; display: flex; padding: 0 40px; border-bottom: 1px solid var(--border); gap: 10px; }
-        .tab { padding: 15px 25px; cursor: pointer; border-bottom: 3px solid transparent; transition: 0.3s; font-weight: bold; color: #666; }
-        .tab.active { border-bottom-color: var(--red); color: var(--red); background: #fff5f6; }
+        :root { --red: #c61d47; --bg: #f4f6f9; --blue: #007bff; --border: #d1d5db; --text: #1f2937; }
+        body { font-family: 'Inter', -apple-system, sans-serif; margin: 0; background: var(--bg); color: var(--text); }
         
-        .container { display: flex; max-width: 1400px; margin: 20px auto; gap: 20px; padding: 0 20px; }
-        .main-card { background: white; flex: 3; padding: 30px; border-radius: 8px; min-height: 600px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .side-card { background: white; flex: 1; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 120px; max-height: 80vh; overflow-y: auto; }
+        header { background: white; padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--red); position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .timer { background: #111827; color: #fff; padding: 8px 20px; font-size: 20px; font-weight: 700; border-radius: 8px; letter-spacing: 1px; }
         
-        .instr { background: #fdf2f4; border-left: 4px solid var(--red); padding: 15px; margin-bottom: 20px; font-size: 14px; }
-        .q-title { font-weight: bold; font-size: 20px; margin-bottom: 15px; color: var(--red); }
-        .q-text { font-size: 19px; margin-bottom: 25px; line-height: 1.6; }
-        .option { border: 1px solid #ddd; padding: 12px; margin-bottom: 10px; border-radius: 6px; cursor: pointer; transition: 0.2s; font-size: 17px; }
-        .option:hover { background: #f8f9fa; }
-        .option.selected { border-color: var(--blue); background: #e7f1ff; font-weight: bold; }
-        
-        .matrix { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        .matrix td, .matrix th { border: 1px solid #ddd; padding: 8px; text-align: center; }
-        
-        .short-ans-input { width: 100%; max-width: 300px; padding: 15px; font-size: 18px; border: 2px solid var(--blue); border-radius: 6px; }
-        .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
-        .n-item { height: 40px; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 4px; font-size: 13px; }
-        .n-item.active { background: var(--red); color: white; border-color: var(--red); }
-        .n-item.saved { background: #555; color: white; }
-        
-        .nav-btns { display: flex; justify-content: space-between; margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; }
-        .btn { padding: 12px 25px; cursor: pointer; border-radius: 6px; border: 1px solid #ccc; background: white; font-weight: bold; }
-        
-        #modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); justify-content:center; align-items:center; z-index:200; }
-        .modal-box { background: white; padding: 40px; border-radius: 12px; text-align: center; max-width: 500px; }
-        .locked { pointer-events: none; opacity: 0.7; filter: grayscale(0.5); }
+        .tabs { background: #fff; display: flex; padding: 0 40px; gap: 5px; border-bottom: 1px solid var(--border); }
+        .tab { padding: 14px 24px; cursor: pointer; border-bottom: 4px solid transparent; font-weight: 600; color: #6b7280; transition: 0.2s; }
+        .tab.active { border-bottom-color: var(--red); color: var(--red); background: #fff1f2; }
+        .tab-ref { color: var(--blue) !important; }
 
-        /* Стилі довідника */
-        .ref-container { height: 75vh; overflow-y: auto; padding-right: 15px; }
-        .ref-section { background: #fff; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
-        .ref-section h3 { color: var(--red); border-bottom: 2px solid var(--red); padding-bottom: 8px; margin-top: 0; }
-        .formula-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .ref-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 10px 0; }
-        .ref-table th, .ref-table td { border: 1px solid #ccc; padding: 6px; text-align: center; }
-        .ref-table th { background: #f8f9fa; }
+        .container { display: flex; max-width: 1300px; margin: 25px auto; gap: 25px; padding: 0 20px; align-items: flex-start; }
+        .main-card { background: white; flex: 3; padding: 35px; border-radius: 12px; min-height: 550px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #e5e7eb; }
+        .side-card { background: white; width: 320px; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); position: sticky; top: 110px; border: 1px solid #e5e7eb; }
+
+        .instr { background: #fef2f2; border-left: 5px solid var(--red); padding: 12px 18px; margin-bottom: 25px; font-size: 14px; color: #991b1b; }
+        .q-title { font-weight: 800; font-size: 22px; margin-bottom: 10px; color: var(--red); }
+        .q-text { font-size: 18px; line-height: 1.6; margin-bottom: 20px; }
+
+        .option { border: 2px solid #e5e7eb; padding: 15px; margin-bottom: 12px; border-radius: 10px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 15px; }
+        .option:hover { border-color: var(--blue); background: #f0f7ff; }
+        .option.selected { border-color: var(--blue); background: #eff6ff; font-weight: 600; box-shadow: 0 0 0 1px var(--blue); }
+        .opt-char { width: 30px; height: 30px; background: #f3f4f6; display: flex; align-items: center; justify-content: center; border-radius: 6px; font-weight: bold; }
+        .selected .opt-char { background: var(--blue); color: white; }
+
+        .match-explanations { margin-bottom: 25px; font-size: 19px; font-weight: 700; line-height: 1.8; color: #374151; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; }
+        .matrix-container { overflow-x: auto; }
+        .matrix { width: 100%; border-collapse: separate; border-spacing: 5px; }
+        .matrix th { background: #f1f5f9; padding: 12px; border-radius: 6px; font-size: 16px; font-weight: 800; color: #1e293b; }
+        .row-label { text-align: left !important; background: #fff; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 16px; font-weight: 600; width: 300px; }
+        .matrix-cell { width: 55px; height: 55px; border: 2px solid #cbd5e1; border-radius: 8px; cursor: pointer; transition: 0.2s; background: #fff; position: relative; }
+        .matrix-cell:hover { border-color: var(--blue); background: #f1f5f9; }
+        .matrix-cell.selected { background: var(--blue); border-color: var(--blue); }
+        .matrix-cell.selected::after { content: '✕'; color: white; font-size: 28px; font-weight: bold; display: flex; align-items: center; justify-content: center; height: 100%; }
+
+        .short-ans-input { width: 100%; max-width: 250px; padding: 15px; font-size: 22px; border: 3px solid var(--blue); border-radius: 10px; text-align: center; font-weight: bold; }
+
+        .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 15px; }
+        .n-item { height: 42px; border: 1px solid #d1d5db; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 6px; font-weight: 600; transition: 0.2s; }
+        .n-item.active { background: var(--red); color: white; border-color: var(--red); }
+        .n-item.saved { background: #374151; color: white; border-color: #374151; }
+
+        .nav-btns { display: flex; justify-content: space-between; margin-top: 40px; padding-top: 25px; border-top: 2px solid #f3f4f6; }
+        .btn { padding: 12px 28px; cursor: pointer; border-radius: 8px; border: 1px solid #d1d5db; background: white; font-weight: 700; transition: 0.2s; }
+        .btn-primary { background: var(--blue); color: white; border: none; }
+
+        #modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); justify-content:center; align-items:center; z-index:1000; backdrop-filter: blur(5px); }
+        .modal-box { background: white; padding: 40px; border-radius: 20px; text-align: center; max-width: 550px; width: 90%; }
+        .locked { pointer-events: none; opacity: 0.6; filter: grayscale(1); }
+
+        .ref-scroll { height: 75vh; overflow-y: auto; padding-right: 15px; }
+        .ref-section { margin-bottom: 35px; border: 1px solid #e5e7eb; border-radius: 10px; padding: 25px; background: #fff; }
+        .ref-section h2 { color: var(--red); border-bottom: 2px solid #fee2e2; padding-bottom: 10px; margin-top: 0; font-size: 24px; }
+        .ref-section h3 { color: #374151; font-size: 18px; margin-top: 20px; background: #f8fafc; padding: 8px 12px; border-radius: 6px; }
+        .formula-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; margin: 15px 0; }
+        .formula-item { padding: 10px; border: 1px dashed #cbd5e1; border-radius: 8px; text-align: center; background: #fcfcfc; font-size: 16px; }
+        .ref-table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 14px; }
+        .ref-table th, .ref-table td { border: 1px solid #e5e7eb; padding: 8px; text-align: center; }
+        .ref-table th { background: #f1f5f9; }
+        
+        .score-val { font-size: 32px; font-weight: 900; color: var(--blue); margin: 5px 0; }
+        .subj-res { border-bottom: 1px solid #eee; padding: 15px 0; }
+        .subj-res:last-child { border: none; }
+        .warning-text { color: #b91c1c; font-weight: 700; margin-bottom: 20px; padding: 10px; background: #fef2f2; border-radius: 8px; }
+        .final-link { color: var(--blue); text-decoration: none; font-weight: 700; font-size: 16px; transition: 0.2s; }
+        .final-link:hover { text-decoration: underline; opacity: 0.8; }
     </style>
 </head>
 <body>
 
-<header id="header">
-    <div style="font-weight:bold; color:var(--red); font-size: 24px;">НМТ 2026</div>
+<header>
+    <div style="font-weight:900; color:var(--red); font-size: 26px;">НМТ<span style="color:#333">2026</span></div>
     <div class="timer" id="timer">02:00:00</div>
-    <button id="finish-btn" class="btn" style="background:var(--red); color:white;" onclick="confirmFinish()">Завершити тест</button>
+    <button id="finish-btn" class="btn" style="background:var(--red); color:white; border:none;" onclick="confirmFinish()">ЗАВЕРШИТИ РОБОТУ</button>
 </header>
 
 <div class="tabs" id="tabs">
-    <div id="tab-ukr" class="tab active" onclick="switchTab('ukr')">Українська мова (1-30)</div>
-    <div id="tab-math" class="tab" onclick="switchTab('math')">Математика (1-22)</div>
-    <div id="tab-ref" class="tab" style="color: var(--blue);" onclick="switchTab('ref')">📖 Довідкові матеріали</div>
+    <div id="tab-ukr" class="tab active" onclick="switchTab('ukr')">Українська мова</div>
+    <div id="tab-math" class="tab" onclick="switchTab('math')">Математика</div>
+    <div id="tab-ref" class="tab tab-ref" onclick="switchTab('ref')">📚 Довідкові матеріали</div>
 </div>
 
 <div class="container" id="main-content">
     <div class="main-card" id="test-view">
-        <div class="instr" id="instr-text">Оберіть відповідь та збережіть.</div>
-        <div id="q-num" class="q-title">Завдання</div>
+        <div class="instr" id="instr-text">Оберіть правильний варіант відповіді.</div>
+        <div id="q-num" class="q-title">Завдання 1</div>
         <div id="q-text" class="q-text"></div>
         <div id="ans-area"></div>
         <div class="nav-btns">
-            <button class="btn" onclick="move(-1)">⟨ Назад</button>
-            <button class="btn" id="save-btn" style="background:var(--blue); color:white; border:none;" onclick="save()">ЗБЕРЕЖТИ ВІДПОВІДЬ</button>
-            <button class="btn" onclick="move(1)">Вперед ⟩</button>
+            <button class="btn" onclick="move(-1)">ПОПЕРЕДНЄ</button>
+            <button class="btn btn-primary" id="save-btn" onclick="save()">ЗБЕРЕГТИ</button>
+            <button class="btn" onclick="move(1)">НАСТУПНЕ</button>
         </div>
     </div>
 
     <div class="main-card" id="ref-view" style="display: none;">
-        <div class="ref-container">
+        <div class="ref-scroll">
             <div class="ref-section">
-                <h3>Таблиця квадратів (10-49)</h3>
+                <h2>Алгебра і початки аналізу</h2>
+                <h3>Таблиця квадратів (10—49)</h3>
                 <table class="ref-table">
-                    <thead>
-                        <tr><th>Дес\Од</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th></tr>
-                    </thead>
+                    <thead><tr><th>Десятки \ Од.</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th></tr></thead>
                     <tbody>
-                        <tr><td><b>1</b></td><td>100</td><td>121</td><td>144</td><td>169</td><td>196</td><td>225</td><td>256</td><td>289</td><td>324</td><td>361</td></tr>
-                        <tr><td><b>2</b></td><td>400</td><td>441</td><td>484</td><td>529</td><td>576</td><td>625</td><td>676</td><td>729</td><td>784</td><td>841</td></tr>
-                        <tr><td><b>3</b></td><td>900</td><td>961</td><td>1024</td><td>1089</td><td>1156</td><td>1225</td><td>1296</td><td>1369</td><td>1444</td><td>1521</td></tr>
-                        <tr><td><b>4</b></td><td>1600</td><td>1681</td><td>1764</td><td>1849</td><td>1936</td><td>2025</td><td>2116</td><td>2209</td><td>2304</td><td>2401</td></tr>
+                        <tr><th>1</th><td>100</td><td>121</td><td>144</td><td>169</td><td>196</td><td>225</td><td>256</td><td>289</td><td>324</td><td>361</td></tr>
+                        <tr><th>2</th><td>400</td><td>441</td><td>484</td><td>529</td><td>576</td><td>625</td><td>676</td><td>729</td><td>784</td><td>841</td></tr>
+                        <tr><th>3</th><td>900</td><td>961</td><td>1024</td><td>1089</td><td>1156</td><td>1225</td><td>1296</td><td>1369</td><td>1444</td><td>1521</td></tr>
+                        <tr><th>4</th><td>1600</td><td>1681</td><td>1764</td><td>1849</td><td>1936</td><td>2025</td><td>2116</td><td>2209</td><td>2304</td><td>2401</td></tr>
                     </tbody>
                 </table>
             </div>
-
-            <div class="ref-section">
-                <h3>Алгебра і початки аналізу</h3>
-                <div class="formula-grid">
-                    <div>
-                        <p><b>Скорочене множення:</b></p>
-                        \( (a \pm b)^2 = a^2 \pm 2ab + b^2 \)<br>
-                        \( a^2 - b^2 = (a-b)(a+b) \)<br>
-                        \( a^3 \pm b^3 = (a \pm b)(a^2 \mp ab + b^2) \)
-                    </div>
-                    <div>
-                        <p><b>Квадратне рівняння:</b></p>
-                        \( ax^2 + bx + c = 0 \)<br>
-                        \( D = b^2 - 4ac \)<br>
-                        \( x_{1,2} = \frac{-b \pm \sqrt{D}}{2a} \)
-                    </div>
-                </div>
-                <hr>
-                <div class="formula-grid">
-                    <div>
-                        <p><b>Степені та логарифми:</b></p>
-                        \( a^n \cdot a^m = a^{n+m} \); \( \frac{a^n}{a^m} = a^{n-m} \)<br>
-                        \( \log_a b^n = n \log_a b \); \( \log_a (bc) = \log_a b + \log_a c \)
-                    </div>
-                    <div>
-                        <p><b>Похідна:</b></p>
-                        \( (x^n)' = n x^{n-1} \); \( (\sin x)' = \cos x \)<br>
-                        \( (\cos x)' = -\sin x \); \( (e^x)' = e^x \)
-                    </div>
-                </div>
-            </div>
-
-            <div class="ref-section">
-                <h3>Геометрія</h3>
-                <div class="formula-grid">
-                    <div>
-                        <p><b>Трикутник:</b></p>
-                        \( a^2 = b^2 + c^2 - 2bc \cos \alpha \)<br>
-                        \( S = \frac{1}{2} a h_a \); \( S = \sqrt{p(p-a)(p-b)(p-c)} \)
-                    </div>
-                    <div>
-                        <p><b>Чотирикутники:</b></p>
-                        Трапеція: \( S = \frac{a+b}{2} \cdot h \)<br>
-                        Ромб: \( S = \frac{1}{2} d_1 d_2 \)
-                    </div>
-                </div>
-                <hr>
-                <div class="formula-grid">
-                    <div>
-                        <p><b>Коло і круг:</b></p>
-                        \( L = 2\pi R \); \( S = \pi R^2 \)<br>
-                        \( (x-x_0)^2 + (y-y_0)^2 = R^2 \)
-                    </div>
-                    <div>
-                        <p><b>Тіла обертання (V):</b></p>
-                        Циліндр: \( V = \pi R^2 H \)<br>
-                        Конус: \( V = \frac{1}{3} \pi R^2 H \); Куля: \( V = \frac{4}{3} \pi R^3 \)
-                    </div>
-                </div>
-            </div>
-
-            <div class="ref-section">
-                <h3>Тригонометрія</h3>
-                <table class="ref-table">
-                    <tr><th>α</th><th>0° (0)</th><th>30° (π/6)</th><th>45° (π/4)</th><th>60° (π/3)</th><th>90° (π/2)</th></tr>
-                    <tr><td>sin α</td><td>0</td><td>1/2</td><td>√2/2</td><td>√3/2</td><td>1</td></tr>
-                    <tr><td>cos α</td><td>1</td><td>√3/2</td><td>√2/2</td><td>1/2</td><td>0</td></tr>
-                    <tr><td>tg α</td><td>0</td><td>√3/3</td><td>1</td><td>√3</td><td>—</td></tr>
-                </table>
-            </div>
         </div>
-        <button class="btn" style="background: var(--blue); color: white; width: 100%; margin-top: 20px;" onclick="switchTab('math')">Повернутися до завдань</button>
     </div>
 
     <div class="side-card" id="side-nav">
-        <h4 id="side-title" style="margin-top:0;">Навігація</h4>
+        <h4 style="margin:0 0 15px 0; color:#4b5563;">Навігація</h4>
         <div class="grid" id="grid"></div>
     </div>
 </div>
 
 <div id="modal">
     <div class="modal-box">
-        <h2 style="color: var(--red);">Тест завершено</h2>
-        <div id="result-content" style="font-size: 18px; margin: 20px 0;"></div>
-        <p style="color: #666; font-size: 13px;">Всі зміни заблоковано. Оновіть сторінку для нового тесту.</p>
+        <h2 style="color: var(--red); font-size: 28px; margin-top:0;">Роботу завершено</h2>
+        <p class="warning-text">Результати по предметах:</p>
+        <div id="result-content" style="text-align: left;">
+            </div>
+        <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
+            <a href="about:blank" class="final-link">Повернутися на головну</a>
+        </div>
     </div>
 </div>
 
 <script>
     const data = { ukr: [], math: [] };
     let isLocked = false;
-    let timerInterval;
 
-    // --- ДАНІ УКРАЇНСЬКА МОВА (30 завдань) ---
-    const ukrSimple = [
-        { t: "Наголос на ДРУГОМУ складі має слово:", o: ["олень", "читання", "випадок", "спина", "фаховий"], c: 1 },
-        { t: "Апостроф ТРЕБА писати в усіх словах рядка:", o: ["подвір_я, матір_ю", "торф_яний, комп_ютер", "мор_як, в_язати", "кур_єр, свят_о", "черв_як, медв_яний"], c: 1 },
-        { t: "Синонімом до фразеологізму «бити байдики» є:", o: ["вилетіти з голови", "водити за ніс", "лежнем лежати", "намилити шию", "грати на нервах"], c: 2 }
+    // --- ПИТАННЯ ---
+    const ukrMCQ = [
+        { t: "Наголос на ДРУГОМУ складі має слово:", o: ["олень", "колія", "спина", "фаховий", "новий"], c: 1 },
+        { t: "Лексичну помилку допущено в рядку:", o: ["наступного тижня", "приймати участь", "порядку денного", "навчатися мови", "задавати питання"], c: 1 },
+        { t: "З великої літери треба писати обидва слова в рядку:", o: ["(з)ахідна (у)країна", "(ч)орне (м)оре", "(б)іла (ц)ерква (місто)", "(ш)евченківська (п)ремія", "(к)иївські (в)улиці"], c: 1 },
+        { t: "М'який знак треба писати в усіх словах рядка:", o: ["тон...ший, мен...ший", "т...мяний, різ...бяр", "лял...ці, нен...ці", "степ..., кров...", "Хар...ків, кобзар..."], c: 2 },
+        { t: "Апостроф НЕ пишеться в усіх словах рядка:", o: ["б...юджет, к...ювет", "дев...ятсот, об...їзд", "подвір...я, сузір...я", "торф...яний, бур...ян", "комп...ютер, бар...єр"], c: 0 },
+        { t: "Подовження приголосних відбувається в усіх словах рядка:", o: ["знан...я, чест...ю", "облич...я, лист...я", "жит...я, розкіш...ю", "стат...ей, суд...ів", "ніч...ю, піч...ю"], c: 2 },
+        { t: "Спрощення в групах приголосних треба позначати на письмі в усіх словах рядка:", o: ["тиж...невий, чес...ний", "зап'яс...ний, кіс...лявий", "форпос...ний, хвас...ливий", "баласт...ний, контрас...ний", "шіс...сот, шіс...надцять"], c: 0 },
+        { t: "Через дефіс треба писати всі слова в рядку:", o: ["пів/острів, пів/Європи", "жовто/гарячий, світло/зелений", "військово/полонений, віце/адмірал", "екс/президент, суспільно/корисний", "північно/західний, прем'єр/міністр"], c: 4 },
+        { t: "НЕМАЄ помилки у вживанні числівника:", o: ["два фахівця", "три комп'ютери", "чотири примірника", "півтора місяці", "обидва хлопця"], c: 1 },
+        { t: "Граматично правильно побудовано речення:", o: ["Слухаючи музику, виникла ідея.", "Йдучи парком, я зустрів друга.", "Прочитавши книгу, вона мені сподобалася.", "Виходячи з дому, почався дощ.", "Працюючи над проєктом, час минув швидко."], c: 1 },
+        { t: "Правильно вжито прийменник у рядку:", o: ["по власному бажанню", "за наказом директора", "згідно інструкції", "відповідно з вимогами", "при будь-яких умовах"], c: 1 },
+        { t: "Укажіть речення, у якому підмет виражений неозначеною формою дієслова:", o: ["Вчитися — завжди корисно.", "Я хочу вчитися.", "Вчитель порадив нам читати.", "Ми прийшли вчитися.", "Навчання — світло."], c: 0 },
+        { t: "Антонім до слова 'щедрий':", o: ["добрий", "багатий", "скупий", "веселий", "ввічливий"], c: 2 },
+        { t: "Укажіть фразеологізм, що є синонімом до 'байдики бити':", o: ["задирати носа", "гав ловити", "брати на кпини", "за холодну воду не братися", "пасти задніх"], c: 3 },
+        { t: "Синонім до слова 'лаконічний':", o: ["довгий", "стислий", "гарний", "складний", "цікавий"], c: 1 },
+        { t: "Визначте рядок, де в усіх словах наголос на останньому складі:", o: ["одинадцять, фаховий", "видання, читання", "дочка, черговий", "квартал, експерт", "олень, дрова"], c: 3 },
+        { t: "Подвоєння букв НЕ відбувається в слові:", o: ["стат...ей", "суд...я", "знан...я", "облич...я", "жит...я"], c: 0 },
+        { t: "Укажіть рядок із правильним звертанням:", o: ["Олег, заходь!", "Олеже, заходь!", "Олегу, заходь!", "Друг, допоможи!", "Пан директор!"], c: 1 },
+        { t: "Правильно утворено форму наказового способу дієслова:", o: ["давайте писати", "пишімо", "будемо писати", "хай пишуть", "напишете"], c: 1 },
+        { t: "Укажіть речення con вставним словом:", o: ["Здається гори дрімають.", "Мені здається все буде добре.", "Сонце здається великим.", "Все здається легким.", "Це тільки здається."], c: 0 },
+        { t: "Яке слово треба писати окремо:", o: ["(що)неділі", "(що)дня", "(що)години", "(що)разу", "(дарма)що"], c: 4 },
+        { t: "Знайдіть речення з відокремленим означенням:", o: ["Осяяний сонцем степ дихав пахощами трав.", "Степ осяяний сонцем дихав пахощами.", "Діти працювали весело.", "Я прийшов допомогти.", "Ми бачили птахів у небі."], c: 0 },
+        { t: "Визначте кількість звуків у слові 'щастя':", o: ["6", "5", "4", "7", "3"], c: 1 },
+        { t: "Укажіть слово з префіксом ПРІ-:", o: ["пр...красний", "пр...звище", "пр...мудрий", "пр...йти", "пр...кордонний"], c: 1 },
+        { t: "Укажіть речення, де вжито порівняльний зворот:", o: ["Він працює як віл.", "Він працює як менеджер.", "Він працює як завжди.", "Він працює як належить.", "Він працює як усі."], c: 0 }
     ];
-    for(let i=0; i<25; i++) data.ukr.push({...ukrSimple[i%3], ans: null});
-    
-    const ukrMatch = [
-        { type: 'm', t: "Відповідність: фразеологізм — значення:", rows: ["1. Пекти раків", "2. Бити в набат", "3. Замилювати очі", "4. Гнути спину"], cols: ["А. Дурити", "Б. Працювати", "В. Червоніти", "Г. Попереджати", "Д. Мовчати"], correct: {0:2, 1:3, 2:0, 3:1}, ans: {} },
-        { type: 'm', t: "Відповідність: частина мови — слово:", rows: ["1. Іменник", "2. Прикметник", "3. Прислівник", "4. Прийменник"], cols: ["А. Швидко", "Б. На", "В. Весна", "Г. Тихий", "Д. Співати"], correct: {0:2, 1:3, 2:0, 3:1}, ans: {} }
-    ];
-    while(data.ukr.length < 30) data.ukr.push({...ukrMatch[data.ukr.length%2], ans:{}});
+    ukrMCQ.forEach(q => data.ukr.push({...q, ans: null}));
+    data.ukr.push({ type:'m', t:"26. Відповідність (фразеологізми):", rows:["1. Пекти раків","2. Бити баклуші","3. Замилювати очі","4. Гнути спину"], cols:["Дурити","Працювати","Червоніти","Ледарювати","Мовчати"], correct:{0:2, 1:3, 2:0, 3:1}, ans:{} });
+    data.ukr.push({ type:'m', t:"27. Тип складного речення:", rows:["1. Складносурядне","2. Складнопідрядне","3. Безсполучникове","4. З різними видами зв'язку"], cols:["Якщо...","...і...","..., ..., ...","...а..., бо...","Тільки..."], correct:{0:1, 1:0, 2:2, 3:3}, ans:{} });
+    data.ukr.push({ type:'m', t:"28. Частини мови:", rows:["1. Іменник","2. Прикметник","3. Дієслово","4. Прислівник"], cols:["Співати","Краса","Зелений","Швидко","Хоча"], correct:{0:1, 1:2, 2:0, 3:3}, ans:{} });
+    data.ukr.push({ type:'m', t:"29. Члени речення:", rows:["1. Підмет","2. Присудок","3. Додаток","4. Обставина"], cols:["Хто? Що?","Що робить?","Кого? Чого?","Як? Де?","Який?"], correct:{0:0, 1:1, 2:2, 3:3}, ans:{} });
+    data.ukr.push({ type:'m', t:"30. Односкладні речення:", rows:["1. Означено-ос.","2. Неозначено-ос.","3. Узагальнено-ос.","4. Безособове"], cols:["Люблю...","Сказали...","Вік живи...","Холодно.","Сонце."], correct:{0:0, 1:1, 2:2, 3:3}, ans:{} });
 
-    // --- ДАНІ МАТЕМАТИКА (22 завдання) ---
-    const mathTests = [
-        { t: "Обчисліть: \\( \\frac{1}{2} + 0.25 \\)", o: ["0.5", "0.75", "1", "0.125", "0.27"], c: 1 },
-        { t: "Спростіть: \\( (a^2)^5 \\cdot a \\)", o: ["\\( a^7 \\)", "\\( a^{10} \\)", "\\( a^{11} \\)", "\\( a^8 \\)", "\\( a^3 \\)"], c: 2 },
-        { t: "Знайдіть корінь: \\( 2x - 10 = 0 \\)", o: ["2", "5", "10", "0", "-5"], c: 1 }
+    const mathMCQ = [
+        { t: "Спростіть вираз: \\( (a-b)(a+b) \\)", o: ["\\( a^2+b^2 \\)", "\\( a^2-b^2 \\)", "\\( (a-b)^2 \\)", "\\( a^2-2ab+b^2 \\)", "\\( a-b \\)"], c: 1 },
+        { t: "Обчисліть квадрат числа 23:", o: ["484", "529", "576", "441", "625"], c: 1 },
+        { t: "Знайдіть дискримінант рівняння \\( x^2 - 5x + 6 = 0 \\):", o: ["1", "25", "24", "49", "0"], c: 0 },
+        { t: "Обчисліть: \\( \\log_2 16 \\)", o: ["2", "4", "8", "1", "0"], c: 1 },
+        { t: "Чому дорівнює \\( \\cos 60^\\circ \\):", o: ["0", "1", "0.5", "\\( \\sqrt{3}/2 \\)", "\\( \\sqrt{2}/2 \\)"], c: 2 },
+        { t: "Відстань між \\( A(1;2) \\) та \\( B(4;6) \\):", o: ["3", "4", "5", "7", "25"], c: 2 },
+        { t: "Площа прямокутника (5 та 8):", o: ["13", "40", "26", "20", "80"], c: 1 },
+        { t: "Імовірність червоної кулі:", o: ["0.3", "0.7", "3", "1", "0.5"], c: 0 },
+        { t: "5-й член прогресії: \\( a_1=2, d=3 \\)", o: ["11", "14", "17", "15", "10"], c: 1 },
+        { t: "Похідна функції \\( f(x) = 5 \\):", o: ["5", "1", "0", "x", "5x"], c: 2 },
+        { t: "Об'єм циліндра (R=2, H=5):", o: ["\\( 10\\pi \\)", "\\( 20\\pi \\)", "\\( 25\\pi \\)", "\\( 4\\pi \\)", "\\( 50\\pi \\)"], c: 1 },
+        { t: "Гіпотенуза з катетами 6 та 8:", o: ["10", "14", "100", "7", "12"], c: 0 },
+        { t: "Спростіть: \\( (2^3)^2 / 2^4 \\)", o: ["2", "4", "8", "16", "1"], c: 1 },
+        { t: "Логарифм \\( \\log_5 1 \\)", o: ["5", "1", "0", "0.2", "не існує"], c: 2 },
+        { t: "Радіус кола \\( (x-1)^2 + (y+2)^2 = 9 \\)", o: ["9", "81", "3", "1", "2"], c: 2 }
     ];
-    for(let i=0; i<15; i++) data.math.push({...mathTests[i%3], ans: null});
+    for(let i=0; i<15; i++) data.math.push({...mathMCQ[i], ans: null});
+    data.math.push({ type:'m', t: "16. Формули зведення:", rows: ["1. \\( \\sin(180^\\circ - \\alpha) \\)", "2. \\( \\cos(90^\\circ + \\alpha) \\)", "3. \\( \\cos(180^\\circ - \\alpha) \\)"], cols: ["\\( \\sin \\alpha \\)", "\\( -\\sin \\alpha \\)", "\\( -\\cos \\alpha \\)", "\\( \\cos \\alpha \\)", "0"], correct: {0:0, 1:1, 2:2}, ans: {} });
     
-    data.math.push({ type: 'm', t: "Установіть відповідність:", rows: ["1. \\( 2^3 \\)", "2. \\( \\sqrt{25} \\)", "3. \\( \\log_2 1 \\)"], cols: ["А. 5", "Б. 8", "В. 0", "Г. 1", "Д. 2"], correct: {0:1, 1:0, 2:2}, ans: {} });
-    data.math.push({ type: 'm', t: "Фігури та кути:", rows: ["1. Квадрат", "2. Рівносторонній трикутник", "3. Прямокутник"], cols: ["А. 60°", "Б. 90°", "В. 120°", "Г. 45°", "Д. 180°"], correct: {0:1, 1:0, 2:1}, ans: {} });
-    data.math.push({ type: 'm', t: "Рівняння:", rows: ["1. \\( x+2=5 \\)", "2. \\( 2x=20 \\)", "3. \\( x^2=4 \\)"], cols: ["А. 3", "Б. 10", "В. 2", "Г. 4", "Д. 5"], correct: {0:0, 1:1, 2:2}, ans: {} });
+    // ОНОВЛЕНО: Завдання 17 та 18 зі звичайними дробами
+    data.math.push({ type: 'm', t: "17. Обчисліть значення виразів:", rows: ["1. \\( \\frac{1}{2} + \\frac{1}{4} \\)", "2. \\( \\frac{5}{6} - \\frac{1}{3} \\)", "3. \\( \\frac{2}{3} \\cdot \\frac{3}{8} \\)"], cols: ["\\( \\frac{3}{4} \\)", "\\( \\frac{1}{2} \\)", "\\( \\frac{1}{4} \\)", "\\( \\frac{7}{12} \\)", "\\( 1 \\)"], correct: {0:0, 1:1, 2:2}, ans: {} });
+    data.math.push({ type: 'm', t: "18. Встановіть відповідність між виразом та його результатом:", rows: ["1. \\( \\frac{3}{5} : \\frac{1}{5} \\)", "2. \\( \\frac{1}{10} + 0.2 \\)", "3. \\( \\frac{2}{5} \\cdot 2.5 \\)"], cols: ["\\( 3 \\)", "\\( \\frac{3}{10} \\)", "\\( 1 \\)", "\\( 0.5 \\)", "\\( 5 \\)"], correct: {0:0, 1:1, 2:2}, ans: {} });
     
-    data.math.push({ type: 's', t: "Площа прямокутника зі сторонами 5 та 6.", correct: "30", ans: null });
-    data.math.push({ type: 's', t: "Обчисліть: \\( 10^2 - 50 \\).", correct: "50", ans: null });
-    data.math.push({ type: 's', t: "Корінь рівняння \\( x/2 = 10 \\).", correct: "20", ans: null });
-    data.math.push({ type: 's', t: "Знайдіть 50% від 80.", correct: "40", ans: null });
+    // ОНОВЛЕНО: Завдання 19 - 24 (Короткі відповіді)
+    data.math.push({ type: 's', t: "19. Розв'яжіть рівняння \\( 5x - 15 = 0 \\). У відповідь запишіть корінь.", correct: "3", ans: null });
+    data.math.push({ type: 's', t: "20. Обчисліть площу квадрата, периметр якого дорівнює 20 см.", correct: "25", ans: null });
+    data.math.push({ type: 's', t: "21. Знайдіть суму коренів рівняння \\( x^2 - 7x + 10 = 0 \\).", correct: "7", ans: null });
+    data.math.push({ type: 's', t: "22. Обчисліть значення виразу \\( 2^{5} \\cdot 2^{-3} \\).", correct: "4", ans: null });
+    data.math.push({ type: 's', t: "23. Знайдіть похідну функції \\( f(x) = 3x^2 \\) у точці \\( x_0 = 2 \\).", correct: "12", ans: null });
+    data.math.push({ type: 's', t: "24. Чому дорівнює радіус кола, якщо його діаметр дорівнює 14,8?", correct: "7.4", ans: null });
 
     let state = { subj: 'ukr', idx: 0, temp: null };
 
     function render() {
         if (isLocked) return;
         const q = data[state.subj][state.idx];
-        document.getElementById('q-num').innerText = `${state.subj==='ukr'?'Мова':'Мат'} - №${state.idx+1}`;
-        document.getElementById('q-text').innerText = q.t;
+        document.getElementById('q-num').innerText = `Завдання №${state.idx+1}`;
+        document.getElementById('q-text').innerHTML = q.t;
         const area = document.getElementById('ans-area'); area.innerHTML = '';
 
         if (!q.type) {
             q.o.forEach((opt, i) => {
                 const sel = (state.temp === i || q.ans === i);
-                area.innerHTML += `<div class="option ${sel?'selected':''}" onclick="setTemp(${i})"><b>${String.fromCharCode(1040+i)}</b> ${opt}</div>`;
+                area.innerHTML += `<div class="option ${sel?'selected':''}" onclick="setTemp(${i})"><div class="opt-char">${String.fromCharCode(1040+i)}</div><div>${opt}</div></div>`;
             });
         } else if (q.type === 'm') {
-            let h = `<div style="margin-bottom:10px; color:#666;">` + q.cols.map((c,i)=>`<b>${String.fromCharCode(1040+i)}</b> ${c}`).join(' | ') + `</div>`;
-            h += `<table class="matrix"><tr><th></th><th>А</th><th>Б</th><th>В</th><th>Г</th><th>Д</th></tr>`;
+            let exp = `<div class="match-explanations">`;
+            q.cols.forEach((c, i) => exp += `<div><b>${String.fromCharCode(1040+i)}</b> — ${c}</div>`);
+            exp += `</div>`;
+            let tbl = `<div class="matrix-container"><table class="matrix"><thead><tr><th></th>`;
+            q.cols.forEach((_, i) => tbl += `<th>${String.fromCharCode(1040+i)}</th>`);
+            tbl += `</tr></thead><tbody>`;
             q.rows.forEach((row, ri) => {
-                h += `<tr><td style="text-align:left"><b>${row}</b></td>`;
-                for(let ci=0; ci<5; ci++) {
-                    const chk = (state.temp && state.temp[ri] === ci) || (q.ans[ri] === ci);
-                    h += `<td><input type="radio" name="r${ri}" onclick="setMatrix(${ri}, ${ci})" ${chk?'checked':''}></td>`;
+                tbl += `<tr><td class="row-label">${row}</td>`;
+                for(let ci=0; ci<q.cols.length; ci++) {
+                    const act = (state.temp && state.temp[ri] === ci) || (q.ans && q.ans[ri] === ci);
+                    tbl += `<td><div class="matrix-cell ${act?'selected':''}" onclick="setMatrix(${ri}, ${ci})"></div></td>`;
                 }
-                h += `</tr>`;
+                tbl += `</tr>`;
             });
-            area.innerHTML = h + `</table>`;
+            tbl += `</tbody></table></div>`;
+            area.innerHTML = exp + tbl;
         } else {
             const val = state.temp !== null ? state.temp : (q.ans || "");
-            area.innerHTML = `<input type="text" class="short-ans-input" value="${val}" oninput="setTemp(this.value)" placeholder="Введіть число...">`;
+            area.innerHTML = `<input type="text" class="short-ans-input" value="${val}" oninput="setTemp(this.value)">`;
         }
         if (window.MathJax) MathJax.typesetPromise();
         updateGrid();
     }
 
-    function setTemp(v) { if(isLocked) return; state.temp = v; render(); }
-    function setMatrix(r, c) { if(isLocked) return; if(!state.temp) state.temp = {...data[state.subj][state.idx].ans}; state.temp[r] = c; render(); }
-    function save() { if(isLocked) return; if(state.temp !== null) { data[state.subj][state.idx].ans = state.temp; state.temp = null; render(); } }
-    function move(d) { if(isLocked) return; state.idx = Math.max(0, Math.min(data[state.subj].length-1, state.idx + d)); state.temp = null; render(); }
+    function setTemp(v) { state.temp = v; render(); }
+    function setMatrix(ri, ci) { 
+        if(!state.temp) state.temp = {...data[state.subj][state.idx].ans};
+        state.temp[ri] = ci; render(); 
+    }
+    function save() { if(state.temp !== null) { data[state.subj][state.idx].ans = state.temp; state.temp = null; render(); } }
+    function move(d) { state.idx = Math.max(0, Math.min(data[state.subj].length-1, state.idx + d)); state.temp = null; render(); }
     
     function switchTab(s) {
-        if(isLocked) return;
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         document.getElementById('tab-'+s).classList.add('active');
-
         if (s === 'ref') {
-            document.getElementById('test-view').style.display = 'none';
-            document.getElementById('side-nav').style.display = 'none';
-            document.getElementById('ref-view').style.display = 'block';
+            document.getElementById('test-view').style.display='none'; document.getElementById('side-nav').style.display='none';
+            document.getElementById('ref-view').style.display='block';
         } else {
-            state.subj = s; state.idx = 0; state.temp = null;
-            document.getElementById('test-view').style.display = 'block';
-            document.getElementById('side-nav').style.display = 'block';
-            document.getElementById('ref-view').style.display = 'none';
-            render();
+            state.subj = s; state.idx = 0;
+            document.getElementById('test-view').style.display='block'; document.getElementById('side-nav').style.display='block';
+            document.getElementById('ref-view').style.display='none'; render();
         }
     }
 
     function updateGrid() {
         document.getElementById('grid').innerHTML = data[state.subj].map((q, i) => {
             let cls = i === state.idx ? 'active' : '';
-            if (q.ans !== null && (typeof q.ans !== 'object' || Object.keys(q.ans).length > 0)) cls += ' saved';
-            return `<div class="n-item ${cls}" onclick="if(!isLocked){state.idx=${i};state.temp=null;render();}">${i+1}</div>`;
+            const isAns = q.type === 'm' ? Object.keys(q.ans).length > 0 : q.ans !== null;
+            if (isAns) cls += ' saved';
+            return `<div class="n-item ${cls}" onclick="state.idx=${i};state.temp=null;render();">${i+1}</div>`;
         }).join('');
     }
 
     function confirmFinish() {
-        if (confirm("Ви впевнені? Після натискання ОК тест буде завершено без можливості редагування.")) finish();
+        if(confirm("Завершити роботу та отримати результати?")) calculateResults();
     }
 
-    function finish() {
-        isLocked = true;
-        clearInterval(timerInterval);
-        document.getElementById('header').classList.add('locked');
-        document.getElementById('tabs').classList.add('locked');
-        document.getElementById('main-content').classList.add('locked');
+    function calculateResults() {
+        let resultsHTML = "";
         
-        let uS = 0, mS = 0;
-        data.ukr.forEach(q => { if(!q.type) { if(q.ans===q.c) uS++; } else { for(let r in q.correct) if(q.ans[r]===q.correct[r]) uS++; } });
-        data.math.forEach(q => {
-            if(!q.type) { if(q.ans===q.c) mS++; }
-            else if(q.type==='m') { for(let r in q.correct) if(q.ans[r]===q.correct[r]) mS++; }
-            else if(q.type==='s' && String(q.ans).trim() === q.correct) mS += 2;
+        ['ukr', 'math'].forEach(subj => {
+            let sScore = 0;
+            let sMax = 0;
+            let sCorrect = 0;
+            let sTotalQ = data[subj].length;
+
+            data[subj].forEach(q => {
+                if (!q.type) { 
+                    sMax += 1; if(q.ans === q.c) { sScore += 1; sCorrect += 1; }
+                } else if (q.type === 'm') {
+                    const rows = Object.keys(q.correct).length; sMax += rows;
+                    for(let r=0; r<rows; r++) { if(q.ans[r] === q.correct[r]) { sScore += 1; sCorrect += 1; } }
+                } else { 
+                    sMax += 2; if(q.ans && q.ans.trim() === q.correct) { sScore += 2; sCorrect += 1; }
+                }
+            });
+
+            const name = subj === 'ukr' ? 'Українська мова' : 'Математика';
+            resultsHTML += `
+                <div class="subj-res">
+                    <strong style="font-size: 18px;">${name}</strong><br>
+                    <div class="score-val">${sScore} / ${sMax} балів</div>
+                    <small>Завдань виконано правильно: ${sCorrect} з ${sTotalQ}</small>
+                </div>`;
         });
-        document.getElementById('result-content').innerHTML = `<b>Мова:</b> ${uS} з 45 б. | <b>Мат:</b> ${mS} з 32 б.<br><b>Загальний результат: ${uS+mS} б.</b>`;
+
+        isLocked = true;
+        document.getElementById('main-content').classList.add('locked');
         document.getElementById('modal').style.display = 'flex';
+        document.getElementById('result-content').innerHTML = resultsHTML;
     }
 
-    let timeLeft = 7200;
-    timerInterval = setInterval(() => {
-        if (timeLeft > 0 && !isLocked) {
-            timeLeft--;
-            let h=Math.floor(timeLeft/3600), m=Math.floor((timeLeft%3600)/60), s=timeLeft%60;
-            document.getElementById('timer').innerText = `${h<10?'0':''}${h}:${m<10?'0':''}${m}:${s<10?'0':''}${s}`;
+    setInterval(() => {
+        let t = document.getElementById('timer').innerText.split(':');
+        let s = parseInt(t[0])*3600 + parseInt(t[1])*60 + parseInt(t[2]);
+        if(s > 0 && !isLocked) {
+            s--;
+            let h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=s%60;
+            document.getElementById('timer').innerText = `${h<10?'0':''}${h}:${m<10?'0':''}${m}:${sec<10?'0':''}${sec}`;
         }
     }, 1000);
+
     render();
 </script>
 </body>
